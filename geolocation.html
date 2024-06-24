@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Example</title>
+</head>
+<body>
+    <h1>Your Location</h1>
+    <p id="location">Determining your location...</p>
+
+    <script>
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(gotLocation, errorLocation);
+        } else {
+            document.getElementById("location").innerHTML = "Geolocation is not supported by this browser.";
+        }
+
+        function gotLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const api_url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+
+            fetch(api_url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address && data.address.country) {
+                        const country = data.address.country;
+                        document.getElementById("location").innerHTML = `You are in ${country}`;
+                    } else {
+                        document.getElementById("location").innerHTML = "Unable to determine your location.";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("location").innerHTML = "Error fetching location data: " + error.message;
+                });
+        }
+
+        function errorLocation(error) {
+            document.getElementById("location").innerHTML = "Error getting location: " + error.message;
+        }
+    </script>
+</body>
+</html>
